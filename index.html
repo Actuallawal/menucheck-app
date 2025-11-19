@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://i.ibb.co/3Jh3Wzb/Artboard-1-copy-2.png">
+    <title>MenuCheck - Restaurant Management Software</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-dark: #334155;
+            --radius: 12px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--gray);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        section {
+            padding: clamp(3rem, 8vw, 6rem) 0;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto clamp(2rem, 6vw, 4rem);
+        }
+
+        .section-header p {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.875rem clamp(1rem, 3vw, 2rem);
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Header Styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1.5rem 0;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
+        }
+
+        .logo-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon i {
+            color: var(--darker);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding-top: clamp(8rem, 15vw, 12rem);
+            padding-bottom: clamp(4rem, 10vw, 8rem);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, rgba(2, 6, 23, 0) 70%);
+            z-index: -1;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            right: -20%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(2, 6, 23, 0) 70%);
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: clamp(2rem, 6vw, 4rem);
+            flex-wrap: wrap;
+        }
+
+        .video-placeholder {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: var(--radius);
+            padding: clamp(1rem, 3vw, 2rem);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .video-container {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--dark), var(--darker));
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-btn {
+            width: clamp(60px, 10vw, 80px);
+            height: clamp(60px, 10vw, 80px);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .play-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .play-btn i {
+            color: white;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-left: 5px;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            background: var(--dark);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+
+        .step {
+            text-align: center;
+            padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .step:hover {
+            transform: translateY(-10px);
+            border-color: rgba(14, 165, 233, 0.3);
+        }
+
+        .step-icon {
+            width: clamp(50px, 8vw, 70px);
+            height: clamp(50px, 8vw, 70px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .step-icon i {
+            font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+            color: var(--darker);
+        }
+
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(1rem, 2.5vw, 1.5rem);
+        }
+
+        .feature-card {
+            padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .feature-icon {
+            width: clamp(40px, 6vw, 50px);
+            height: clamp(40px, 6vw, 50px);
+            border-radius: 12px;
+            background: rgba(14, 165, 233, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .feature-icon i {
+            color: var(--primary);
+            font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+        }
+
+        /* Demo Preview Section */
+        .demo-preview {
+            background: var(--dark);
+        }
+
+        .demo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 4vw, 3rem);
+            align-items: center;
+        }
+
+        .demo-main {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow);
+        }
+
+        .demo-main-img {
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-side {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+            padding: clamp(1rem, 2.5vw, 1.5rem);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(14, 165, 233, 0.3);
+        }
+
+        .demo-card-img {
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Pricing Section */
+        .pricing-card {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+            padding: clamp(2rem, 5vw, 3rem);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .price {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .price-period {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--gray);
+        }
+
+        .features-list {
+            text-align: left;
+            margin: clamp(1.5rem, 3vw, 2rem) 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-item i {
+            color: var(--secondary);
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            background: var(--dark);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar {
+            width: clamp(50px, 8vw, 60px);
+            height: clamp(50px, 8vw, 60px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--darker);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: var(--gray);
+        }
+
+        /* FAQ Section */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: clamp(1rem, 2.5vw, 1.5rem);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-question i {
+            transition: var(--transition);
+        }
+
+        .faq-answer {
+            padding: 0 clamp(1rem, 2.5vw, 1.5rem);
+            max-height: 0;
+            overflow: hidden;
+            transition: var(--transition);
+            color: var(--gray);
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 clamp(1rem, 2.5vw, 1.5rem) clamp(1rem, 2.5vw, 1.5rem);
+            max-height: 500px;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--darker);
+            padding: clamp(2rem, 6vw, 4rem) 0 clamp(1rem, 3vw, 2rem);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: clamp(1.5rem, 4vw, 3rem);
+            margin-bottom: clamp(1.5rem, 4vw, 3rem);
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
+            margin-bottom: 1rem;
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.125rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            padding-top: clamp(1rem, 3vw, 2rem);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--gray);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1024px) {
+            .steps, .features-grid, .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .demo-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--darker);
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 6rem;
+                padding-left: 2rem;
+                transition: var(--transition);
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .steps, .features-grid, .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .hero-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .video-placeholder {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <span>MenuCheck</span>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="#how-it-works">How It Works</a>
+                <a href="#features">Features</a>
+                <a href="#demo">Demo</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="#faq">FAQ</a>
+            </nav>
+            
+            <a href="app.html" class="btn btn-primary" style="text-decoration: none;">
+                Start Free
+            </a>
+            
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                
+                <h1>
+                    The Easiest Restaurant Management Software in 
+                    <span class="text-gradient">Africa</span>
+                </h1>
+
+                <p>
+                    Create your menu, accept orders, track sales, and run your restaurant from one dashboard.
+                    Fully mobile friendly.
+                </p>
+
+                <div class="hero-buttons">
+                    <!-- Link button (styled exactly like button) -->
+                    <a href="app.html" class="btn btn-primary" style="text-decoration: none;">
+                        Start Free Trial
+                    </a>
+
+                    <!-- Regular button -->
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-play"></i>
+                        Watch Demo Video
+                    </button>
+                </div>
+
+                <div class="video-placeholder">
+                    <div class="video-container" id="videoArea" 
+                        style="position: relative; overflow: hidden; border-radius: 16px;">
+
+                        <!-- MUTE / UNMUTE BUTTON -->
+                        <button id="muteToggle" 
+                            style="
+                                position: absolute;
+                                top: 15px;
+                                right: 15px;
+                                z-index: 20;
+                                background: rgba(0,0,0,0.45);
+                                border: none;
+                                border-radius: 50%;
+                                width: 48px;
+                                height: 48px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                cursor: pointer;
+                            ">
+                            <i class="fas fa-volume-mute" style="font-size: 20px; color: white;"></i>
+                        </button>
+
+                        <!-- CLEAN IFRAME (NO YOUTUBE UI AT ALL) -->
+                        <iframe
+                            id="demoVideo"
+                            src=""
+                            frameborder="0"
+                            allow="autoplay; encrypted-media"
+                            allowfullscreen
+                            style="
+                                width: 100%;
+                                height: 100%;
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                object-fit: cover;
+                            ">
+                        </iframe>
+                    </div>
+                </div>
+
+                <script>
+                    /*
+                    🔥 CHANGE YOUR VIDEO HERE  
+                    --------------------------
+                    Example video link:
+                    https://www.youtube.com/watch?v=i-73-ZJxGA0
+                    VIDEO_ID = "i-73-ZJxGA0"
+                    */
+                    const VIDEO_ID = "S_4DHvylc1A";
+
+                    const iframe = document.getElementById("demoVideo");
+
+                    // Load video with ABSOLUTE MINIMAL UI and NO LOGO
+                    iframe.src =
+                    `https://www.youtube.com/embed/${VIDEO_ID}` +
+                    `?autoplay=1` +
+                    `&mute=1` +
+                    `&loop=1` +
+                    `&playlist=${VIDEO_ID}` +
+                    `&controls=0` +
+                    `&showinfo=0` +
+                    `&modestbranding=1` +
+                    `&rel=0` +
+                    `&iv_load_policy=3` +
+                    `&fs=0` +
+                    `&disablekb=1`;
+
+                    // MUTE BUTTON LOGIC
+                    let isMuted = true;
+                    document.getElementById("muteToggle").addEventListener("click", () => {
+                        isMuted = !isMuted;
+
+                        iframe.src =
+                        `https://www.youtube.com/embed/${VIDEO_ID}` +
+                        `?autoplay=1` +
+                        `&mute=${isMuted ? 1 : 0}` +
+                        `&loop=1` +
+                        `&playlist=${VIDEO_ID}` +
+                        `&controls=0` +
+                        `&showinfo=0` +
+                        `&modestbranding=1` +
+                        `&rel=0` +
+                        `&iv_load_policy=3` +
+                        `&fs=0` +
+                        `&disablekb=1`;
+
+                        document.getElementById("muteToggle").innerHTML =
+                        isMuted
+                            ? `<i class="fas fa-volume-mute" style="font-size:20px;color:white;"></i>`
+                            : `<i class="fas fa-volume-up" style="font-size:20px;color:white;"></i>`;
+                    });
+                </script>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>Get started in minutes with our simple 4-step process</p>
+            </div>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3>Create Account</h3>
+                    <p>Sign up in seconds with your email</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Add Meals</h3>
+                    <p>Upload your menu items with photos and prices</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3>Share QR Code</h3>
+                    <p>Display your unique QR code on every table</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h3>Manage Orders</h3>
+                    <p>Receive and manage real-time orders from anywhere</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Powerful Features</h2>
+                <p>Everything you need to run your restaurant efficiently</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Real-time Orders</h3>
+                    <p>Get instant notifications when customers place orders</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3>Printable QR Menu</h3>
+                    <p>Generate beautiful QR codes for your physical tables</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Online Menu Page</h3>
+                    <p>Your restaurant gets a free custom online menu page</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <h3>Multi-Device Dashboard</h3>
+                    <p>Manage everything from phone, tablet, or computer</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3>WhatsApp Notifications</h3>
+                    <p>Automatic order alerts sent directly to your WhatsApp</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Sales Analytics</h3>
+                    <p>Track performance and popular items with detailed reports</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Unlimited Meals</h3>
+                    <p>Add as many items as you need - no limits ever</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <h3>Auto Subscription</h3>
+                    <p>Seamless renewal system with no manual intervention</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Preview Section -->
+    <section id="demo" class="demo-preview">
+        <div class="container">
+            <div class="section-header">
+                <h2>See MenuCheck in Action</h2>
+                <p>Beautiful, intuitive interfaces designed for restaurant owners</p>
+            </div>
+            
+            <div class="demo-container">
+                <div class="demo-main">
+                    <div class="demo-main-img">
+                        <i class="fas fa-desktop" style="font-size: 3rem; color: var(--primary);"></i>
+                    </div>
+                    <h3>Complete Admin Dashboard</h3>
+                    <p>Manage everything from one central location with real-time updates.</p>
+                </div>
+                
+                <div class="demo-side">
+                    <div class="demo-card">
+                        <div class="demo-card-img">
+                            <i class="fas fa-utensils" style="font-size: 2rem; color: var(--secondary);"></i>
+                        </div>
+                        <h3>Meal Management</h3>
+                        <p>Easily add, edit, and organize your menu items.</p>
+                    </div>
+                    
+                    <div class="demo-card">
+                        <div class="demo-card-img">
+                            <i class="fas fa-qrcode" style="font-size: 2rem; color: var(--primary);"></i>
+                        </div>
+                        <h3>Custom QR Codes</h3>
+                        <p>Beautiful, branded QR codes for your restaurant tables.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>One plan, all features, no hidden fees</p>
+            </div>
+            
+            <div class="pricing-card">
+                <div class="price">₦23,999<span class="price-period">/month</span></div>
+                <p>Billed monthly, cancel anytime</p>
+                
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span>All features included</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span>3-day free trial</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span>QR code generator</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span>Real-time WhatsApp notifications</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span>Multi-device access</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span>Payment integrations</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check"></i>
+                        <span>24/7 Direct Support</span>
+                    </div>
+                </div>
+                
+                <a href="app.html" class="btn btn-primary" style="text-decoration: none;">
+                    Start Free Trial
+                </a>
+                <p style="margin-top: 1rem; font-size: 0.875rem;">No credit card required • Cancel anytime</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2>Trusted by Restaurants</h2>
+                <p>Join hundreds of successful restaurant owners across Nigeria</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="avatar">CO</div>
+                        <div>
+                            <h3>Chinedu Okoro</h3>
+                            <p>Lagos Bistro</p>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">"MenuCheck transformed how we run our restaurant. Orders are smoother and customers love the QR menu!"</p>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="avatar">AY</div>
+                        <div>
+                            <h3>Amina Yusuf</h3>
+                            <p>Abuja Delights</p>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">"The WhatsApp notifications save us so much time. We don't miss a single order anymore!"</p>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="avatar">EN</div>
+                        <div>
+                            <h3>Emeka Nwosu</h3>
+                            <p>Port Harcourt Grill</p>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">"Our sales increased by 40% in the first month. The analytics help us understand what customers really want."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq">
+        <div class="container">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Everything you need to know about MenuCheck</p>
+            </div>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What is MenuCheck?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>MenuCheck is a comprehensive restaurant management software designed specifically for Nigerian restaurants to streamline operations, manage orders, and boost sales.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How does the free trial work?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We offer a 3-day free trial with full access to all features. No credit card required to start.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do customers order using QR code?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Customers simply scan the QR code at their table with their phone camera, which opens your digital menu where they can browse and place orders directly.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I manage multiple devices?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! MenuCheck works seamlessly across all your devices - phones, tablets, and computers. All data syncs in real-time.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Do I need to install anything?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No installation required! MenuCheck works entirely in your web browser. Just log in and start managing your restaurant.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is it secure?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely. We use bank-grade encryption and security protocols to protect your data and your customers' information.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I cancel?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can cancel anytime from your account settings. There are no contracts or hidden fees.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Do you support Nigerian payment methods?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! We integrate seamlessly with popular Nigerian payment gateways including Flutterwave, Paystack, and bank transfers.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I customize my menu design?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, you can customize colors, fonts, and layout to match your restaurant's branding.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What if I need help?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Our Nigerian-based support team is available via WhatsApp and email to assist you anytime.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <span>MenuCheck</span>
+                    </div>
+                    <p>The best restaurant and hotel management software for African businesses.</p>
+                    
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Partners</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Terms</a></li>
+                        <li><a href="#">Privacy</a></li>
+                        <li><a href="#">Cookies</a></li>
+                        <li><a href="#">GDPR</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2025 MenuCheck is Powered by PIXELPUNCH LTD.</p>
+                <div>
+                    <a href="mailto:support@menucheck.ng" style="margin-right: 1.5rem;">
+                        <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
+                        support@menucheck.ng
+                    </a>
+                    <a href="https://wa.me/2348075640610">
+                        <i class="fab fa-whatsapp" style="margin-right: 0.5rem;"></i>
+                        +234 801 234 5678
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Accordion Functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentNode;
+                item.classList.toggle('active');
+            });
+        });
+
+        // Mobile Menu Toggle
+        document.querySelector('.mobile-menu-btn').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Restaurant Admin</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="https://i.ibb.co/3Jh3Wzb/Artboard-1-copy-2.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Load libraries FIRST -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <!-- Login Screen -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo">🍽️Admin</div>
+      <h2>Welcome Back</h2>
+      <p>Sign in to your dashboard</p>
+    </div>
+
+      <form id="loginForm">
+  
+        <!-- Email field -->
+<div class="input-group">
+  <input type="text" id="loginUsername" placeholder="Email" required autocomplete="email">
+</div>
+
+  <!-- Password field -->
+<div class="input-group">
+  <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+  <button type="button" class="password-toggle" onclick="togglePasswordVisibility(document.getElementById('loginPassword'))">👁️</button>
+</div>
+
+  <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+</form>
+    
+    <div class="login-footer">
+      <button type="button" id="showRegisterBtn" class="btn-link">Create new account</button>
+      <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <button type="button" id="forgotPasswordBtn" class="btn-link">Forgot password?</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Register Modal - SINGLE PAGE VERSION -->
+<div id="registerModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Create Account</h3>
+      <button class="btn-close" id="closeRegisterModal">×</button>
+    </div>
+    
+    <!-- SINGLE PAGE Registration Form -->
+    <form id="registrationForm">
+      <div class="form-section active">
+        <h4>Create Your Restaurant Account</h4>
+        
+        <!-- Admin Information -->
+        <div class="form-section-group">
+          <h5>Admin Information</h5>
+          
+          <div class="input-group">
+            <label for="regUsername">Username</label>
+            <input type="text" id="regUsername" placeholder="Enter your username" required minlength="3">
+          </div>
+
+          <div class="input-group">
+            <label for="regEmail">Email Address</label>
+            <input type="email" id="regEmail" placeholder="Enter your email" required autocomplete="email">
+          </div>
+          
+          <div class="input-group">
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" placeholder="Create a password" required minlength="6" autocomplete="new-password">
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility(document.getElementById('regPassword'))">👁️</button>
+          </div>
+
+          <div class="input-group">
+            <label for="regConfirmPassword">Confirm Password</label>
+            <input type="password" id="regConfirmPassword" placeholder="Confirm your password" required autocomplete="new-password">
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility(document.getElementById('regConfirmPassword'))">👁️</button>
+          </div>
+        </div>
+
+        <!-- Restaurant Details -->
+        <div class="form-section-group">
+          <h5>Restaurant Details</h5>
+          
+          <div class="input-group">
+            <label for="regCompanyName">Restaurant Name</label>
+            <input type="text" id="regCompanyName" placeholder="Enter your restaurant name" required>
+          </div>
+          
+          <div class="input-group">
+            <label for="regCompanyAddress">Full Address</label>
+            <textarea id="regCompanyAddress" placeholder="Enter your restaurant's full address" required rows="3"></textarea>
+          </div>
+          
+          <div class="input-group">
+            <label for="regCompanyPhone">Phone Number</label>
+            <input type="tel" id="regCompanyPhone" placeholder="Enter phone number" required>
+          </div>
+          
+          <div class="input-group">
+            <label for="regCompanyWebsite">Website (Optional)</label>
+            <input type="url" id="regCompanyWebsite" placeholder="https://your-restaurant.com">
+          </div>
+        </div>
+
+        <!-- WhatsApp Configuration Section -->
+        <div class="form-section-group">
+          <h5>WhatsApp Notifications</h5>
+          
+          <div class="input-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="regEnableWhatsApp" checked onchange="toggleWhatsAppFields()">
+              Enable WhatsApp order notifications
+            </label>
+          </div>
+          
+          <div id="whatsappFields" class="whatsapp-fields">
+            <div class="input-group">
+              <label for="regWhatsAppNumber">WhatsApp Number</label>
+              <input type="tel" id="regWhatsAppNumber" placeholder="2348112345667">
+              <small>Orders will be sent to this WhatsApp number</small>
+            </div>
+            
+            <div class="input-group">
+              <label for="regWhatsAppTemplate">Message Template</label>
+              <textarea id="regWhatsAppTemplate" rows="4" placeholder="Custom message template for orders">🛍️ *NEW ORDER*
+
+*Customer:* {customer_name}
+*Order Type:* {order_type}
+*Table/Room:* {table_number}
+*Payment Method:* {payment_method}
+
+*Order Items:*
+{order_items}
+
+*Total: ₦{total_amount}*</textarea>
+              <small>Use placeholders: {customer_name}, {order_type}, {table_number}, {payment_method}, {order_items}, {total_amount}</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelRegisterBtn">Cancel</button>
+          <button type="submit" class="btn btn-success">Create Account</button>
+        </div>
+      </div>
+    </form>
+    
+    <div id="registerError" class="error-message"></div>
+  </div>
+</div>
+
+  <!-- Password Reset Modal -->
+<div id="passwordResetModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Reset Password</h3>
+      <button class="btn-close" id="closePasswordResetModal">×</button>
+    </div>
+
+    <form id="passwordResetForm">
+  
+      <!-- Email field -->
+<div class="input-group">
+  <label for="resetEmail">Email Address</label>
+  <input type="email" id="resetEmail" placeholder="Enter your email" required autocomplete="email">
+</div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" id="cancelPasswordReset">Cancel</button>
+    <button type="submit" class="btn btn-primary">Send Reset Link</button>
+  </div>
+  <div id="passwordResetError" class="error-message"></div>
+</form>
+  </div>
+</div>
+
+
+
+  <!-- Confirm Modal -->
+<div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Confirm Action</h3>
+            <button class="btn-close" id="closeConfirmModal">×</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Are you sure you want to perform this action?</p>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="confirmNo">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmYes">Confirm</button>
+        </div>
+    </div>
+</div>
+
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard hidden">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <!-- Mobile hamburger menu -->
+<div class="mobile-menu-toggle" id="mobileMenuToggle">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<!-- Mobile navigation overlay -->
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <div class="mobile-nav">
+    <div class="mobile-nav-header">
+      <div class="mobile-logo">🍽️ Admin</div>
+      <button class="mobile-close" id="mobileClose">×</button>
+    </div>
+    <div class="mobile-nav-items">
+      <div class="mobile-nav-item active" data-section="dashboard">
+        <span class="mobile-nav-icon">📊</span>
+        <span class="mobile-nav-text">Dashboard</span>
+      </div>
+      <div class="mobile-nav-item" data-section="meals">
+        <span class="mobile-nav-icon">🍔</span>
+        <span class="mobile-nav-text">Meals</span>
+      </div>
+      <div class="mobile-nav-item" data-section="orders">
+        <span class="mobile-nav-icon">🧾</span>
+        <span class="mobile-nav-text">Orders</span>
+        <span class="notification-badge hidden" id="mobileOrderBadge">0</span>
+      </div>
+      <div class="mobile-nav-item" data-section="settings">
+        <span class="mobile-nav-icon">⚙️</span>
+        <span class="mobile-nav-text">Settings</span>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="top-bar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="logo">Admin</div>
+      </div>
+      <div class="top-bar-right">
+        <span class="user-info" id="adminNameDisplay">Admin</span>
+        <button class="btn btn-outline" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Sidebar -->
+      <nav class="sidebar" id="sidebar">
+  <div class="nav-section">
+  <div class="nav-item active" data-section="dashboard">
+    <span class="nav-icon">📊</span>
+    <span class="nav-text">Dashboard</span>
+  </div>
+  <div class="nav-item" data-section="meals">
+    <span class="nav-icon">🍔</span>
+    <span class="nav-text">Meals</span>
+  </div>
+  <div class="nav-item" data-section="orders">
+    <span class="nav-icon">🧾</span>
+    <span class="nav-text">Orders</span>
+    <span class="notification-badge hidden" id="orderNotificationBadge">0</span>
+  </div>
+  <div class="nav-item" data-section="settings">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-text">Settings</span>
+  </div>
+</div>
+        
+        <div class="nav-footer">
+          <div class="user-card">
+            <div class="user-avatar">👤</div>
+            <div class="user-details">
+              <div class="user-name" id="sidebarAdminName">Admin</div>
+              <div class="user-role">Administrator</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+<main class="main-content">
+    <!-- Dashboard Section -->
+    <section id="dashboardSection" class="content-section active">
+        <div class="section-header">
+            <div class="section-title">
+                <h1>Dashboard Overview</h1>
+                <p>Manage your restaurant operations</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openExportModal()">
+                    📊 Export Orders
+                </button>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🍔</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalMeals">0</div>
+                    <div class="stat-label">Total Meals</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalMenus">0</div>
+                    <div class="stat-label">Active Menus</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🧾</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalOrders">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalRevenue">₦0</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+        </div>
+
+          <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <div class="activity-list" id="recentActivity">
+                <div class="empty-state">No recent activity</div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Meals Section -->
+    <section id="mealsSection" class="content-section">
+  <div class="section-header">
+    <div class="section-title">
+      <h1>All Meals</h1>
+      <p>Manage your menu items</p>
+    </div>
+    <div class="section-actions">
+      <button class="btn btn-primary" onclick="openMealModal()">
+        <span>+</span> Add Meal
+      </button>
+    </div>
+  </div>
+
+  <div class="meals-search-container">
+    <div class="search-box">
+      <input type="text" id="mealSearch" placeholder="Search meals...">
+    </div>
+    <select class="filter-select" id="categoryFilter">
+      <option value="">All Categories</option>
+      <option value="Main Course">Main Course</option>
+      <option value="Fast Food">Fast Food</option>
+      <option value="Drinks">Drinks & Beverages</option>
+      <option value="Snacks">Snacks & Sides</option>
+      <option value="Desserts">Desserts</option>
+    </select>
+  </div>
+
+  <div class="meals-grid" id="mealsGrid">
+    <div class="empty-state">
+      <div class="empty-icon">🍔</div>
+      <h3>No meals yet</h3>
+      <p>Add your first meal to get started</p>
+      <button class="btn btn-primary" onclick="openMealModal()">Add Meal</button>
+    </div>
+  </div>
+</section>
+
+        <!-- Orders Section -->
+    <section id="ordersSection" class="content-section">
+  <div class="section-header">
+    <div class="section-title">
+      <h1>Order Management</h1>
+      <p>View and manage customer orders</p>
+    </div>
+    <div class="orders-header-actions">
+      <div class="notification-controls">
+        <button class="notification-toggle" id="soundToggle" onclick="toggleNotificationSound()">
+          <span class="sound-indicator" id="soundIndicator"></span>
+          Sound
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="markOrdersAsSeen()">
+          Mark All Read
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="orders-table-container">
+    <div class="orders-table" id="ordersTable">
+      <div class="empty-state">
+        <div class="empty-icon">🧾</div>
+        <h3>No orders yet</h3>
+        <p>Orders will appear here when customers place them</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+    <button class="btn btn-primary btn-lg" onclick="startFreeTrial(event)">
+  Start 3-Day Free Trial in Settings
+</button>
+
+    
+    <!-- Payment Issues Banner -->
+    <div class="alert-banner warning hidden" id="paymentIssueBanner">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+            <strong>Payment Issue Detected</strong>
+            <p id="paymentIssueMessage">We couldn't process your last payment.</p>
+            <button class="btn btn-sm btn-outline" onclick="openPaymentUpdateModal()">Update Payment Method</button>
+        </div>
+    </div>
+    
+    <!-- Grace Period Banner -->
+    <div class="alert-banner info hidden" id="gracePeriodBanner">
+        <div class="alert-icon">⏳</div>
+        <div class="alert-content">
+            <strong>Grace Period Active</strong>
+            <p id="gracePeriodMessage">Your subscription will be suspended if payment isn't updated.</p>
+            <button class="btn btn-sm btn-primary" onclick="openPaymentUpdateModal()">Update Payment Now</button>
+        </div>
+    </div>
+</div>
+
+        <!-- Settings Section -->
+    <section id="settingsSection" class="content-section">
+        <div class="section-header">
+            <h2>Settings</h2>
+            <p>Manage your restaurant settings and menu</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Your settings content here -->
+            <div class="setting-card">
+                <h3>Company Information</h3>
+                <div class="setting-content">
+                    <div class="info-grid" id="companyInfoDisplay">
+                        <div class="info-item">
+                            <label>Restaurant Name:</label>
+                            <span id="companyNameDisplay">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Address:</label>
+                            <span id="companyAddressDisplay">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Phone:</label>
+                            <span id="companyPhoneDisplay">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Email:</label>
+                            <span id="companyEmailDisplay">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" onclick="openEditCompanyModal()">Edit Information</button>
+            </div>
+
+            <!-- WhatsApp Configuration -->
+<div class="setting-card">
+    <h3>WhatsApp Notifications</h3>
+    <div class="setting-content">
+        <p>Configure how you receive order notifications on WhatsApp</p>
+        
+        <div class="whatsapp-config">
+            <div class="input-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="enableWhatsApp" checked onchange="toggleSettingsWhatsAppFields()">
+                    <span class="checkmark"></span>
+                    Enable WhatsApp order notifications
+                </label>
+                <small>When enabled, new orders will be sent to your WhatsApp number</small>
+            </div>
+            
+            <div id="settingsWhatsappFields" class="whatsapp-fields">
+                <div class="input-group">
+                    <label for="whatsappNumber">WhatsApp Number</label>
+                    <div class="input-with-prefix">
+                        <span class="input-prefix">+</span>
+                        <input type="tel" id="whatsappNumber" placeholder="2348075640610" maxlength="15">
+                    </div>
+                    <small>Enter your WhatsApp number without the + sign</small>
+                </div>
+                
+                <div class="input-group">
+                    <label for="whatsappTemplate">Message Template</label>
+                    <textarea id="whatsappTemplate" rows="6" placeholder="Custom message template for orders" class="template-textarea"></textarea>
+                    <div class="template-preview">
+                        <strong>Template Preview:</strong>
+                        <div id="templatePreview" class="preview-content">
+                            Preview will appear here...
+                        </div>
+                    </div>
+                    <small>Available placeholders: 
+                        <span class="placeholder-tag" onclick="insertPlaceholder('{customer_name}')">{customer_name}</span>,
+                        <span class="placeholder-tag" onclick="insertPlaceholder('{order_type}')">{order_type}</span>,
+                        <span class="placeholder-tag" onclick="insertPlaceholder('{table_number}')">{table_number}</span>,
+                        <span class="placeholder-tag" onclick="insertPlaceholder('{payment_method}')">{payment_method}</span>,
+                        <span class="placeholder-tag" onclick="insertPlaceholder('{order_items}')">{order_items}</span>,
+                        <span class="placeholder-tag" onclick="insertPlaceholder('{total_amount}')">{total_amount}</span>
+                    </small>
+                </div>
+                
+                <div class="template-actions">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="resetToDefaultTemplate()">
+                        Reset to Default
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="previewTemplate()">
+                        Refresh Preview
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section -->
+        <div class="test-section">
+            <h4>Test Configuration</h4>
+            <p>Send a test message to verify your WhatsApp settings</p>
+            <button class="btn btn-secondary" onclick="sendTestWhatsApp()" id="testWhatsAppBtn">
+                📱 Send Test Message
+            </button>
+        </div>
+    </div>
+    
+    <div class="form-actions">
+        <button class="btn btn-secondary" onclick="resetWhatsAppSettings()">Reset</button>
+        <button class="btn btn-primary" onclick="saveWhatsAppSettings()" id="saveWhatsAppBtn">
+            💾 Save WhatsApp Settings
+        </button>
+    </div>
+</div>
+
+ <!-- QR Code Section -->
+<div class="setting-card">
+  <h3>Menu QR Code</h3>
+  <p>Share this QR code with customers to access your digital menu</p>
+  
+  <div id="qrCodeContainer" class="qr-code-container">
+    <div class="loading">Generating QR code...</div>
+    <img id="qrCodeImage" style="display:none; max-width:220px; margin:auto;" />
+</div>
+  
+  <div class="menu-link">
+    <strong>Your Menu Link:</strong>
+    <a id="qrUrl" href="#" target="_blank">
+      Generating menu link...
+    </a>
+  </div>
+  
+  <div class="qr-actions">
+    <button id="downloadQRBtn" class="btn btn-primary" disabled>
+        Download QR Code
+    </button>
+    <button id="copyLinkBtn" class="btn btn-secondary" disabled>
+        Copy Link
+    </button>
+</div>
+</div>
+
+        <!-- QR Code Modal -->
+<div id="qrModal" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3>Your Menu QR Code</h3>
+            <button class="btn-close" onclick="closeQRModal()">×</button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 24px;">
+            <div id="qrModalContainer" style="min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                <div class="loading">Generating QR code...</div>
+            </div>
+            <div style="margin-top: 20px;">
+                <div style="font-size: 14px; color: var(--muted); margin-bottom: 8px;">Menu Link:</div>
+                <a id="qrModalUrl" href="#" target="_blank" style="color: var(--accent); word-break: break-all; font-size: 14px;">
+                    Generating menu link...
+                </a>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="downloadQRCode()">Download QR Code</button>
+            <button class="btn btn-secondary" onclick="closeQRModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+    <!-- Subscription Management -->
+    <div class="setting-card">
+  <h3>Subscription Plan</h3>
+  <div class="setting-content" id="currentSubscription">
+    <p>Loading subscription information...</p>
+  </div>
+  <button class="btn btn-primary mobile-subscription-btn" onclick="openSubscriptionModal()">
+    <span class="mobile-icon">🎁</span>
+    <span class="mobile-text">Manage Subscription</span>
+  </button>
+</div>
+
+
+<!-- Subscription Modal -->
+<div id="subscriptionModal" class="modal-overlay hidden">
+  <div class="modal modal-lg subscription-modal">
+    <div class="modal-header">
+      <h3>Start Free Trial</h3>
+      <button class="btn-close" onclick="closeModal('subscriptionModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="subscriptionForm">
+    
+    <div id="paystackSavedCards" style="margin-bottom:20px;"></div>
+
+    <div id="paystackCardFrame" style="
+        width:100%;
+        min-height: 520px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background:#fafafa;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:14px;
+        color:#888;
+    ">
+        Paystack checkout will load here
+    </div>
+
+    <div class="form-actions" style="margin-top:20px;">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('subscriptionModal')">
+        Cancel
+      </button>
+
+      <button id="startSubscriptionBtn" type="button" class="btn btn-primary">
+        Start Subscription (₦23,999)
+      </button>
+    </div>
+
+    <div class="security-notice">
+      <div class="secure-badge">🔒 Secure payment powered by Paystack</div>
+      <p>Your payment information is encrypted and secure</p>
+    </div>
+
+</form>
+
+    </div>
+  </div>
+</div>
+
+    <!-- Customer Support -->
+    <div class="setting-card">
+      <h3>Customer Support</h3>
+      <div class="setting-content">
+        <p>Get help and support for your restaurant management</p>
+      </div>
+      <button class="btn btn-primary" onclick="openSupportModal()">Contact Support</button>
+    </div>
+  </div>
+</section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ===========================
+      MEAL MODAL (FINAL VERSION)
+=========================== -->
+<div id="mealModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="mealFormTitle">Add New Meal</h2>
+      <button class="btn-close" onclick="closeModal('mealModal')">×</button>
+    </div>
+
+    <form id="mealForm">
+      <input type="hidden" id="mealId">
+
+      <div class="input-group">
+        <label>Meal Name</label>
+        <input type="text" id="mealName" required>
+      </div>
+
+      <div class="input-group">
+        <label>Price (₦)</label>
+        <input type="number" id="mealPrice" required min="0">
+      </div>
+
+      <div class="input-group">
+        <label>Description</label>
+        <textarea id="mealDescription" rows="3"></textarea>
+      </div>
+
+      <div class="input-group">
+        <label>Category</label>
+        <select id="mealCategory">
+          <option value="Main Course">Main Course</option>
+          <option value="Fast Food">Fast Food</option>
+          <option value="Drinks">Drinks</option>
+          <option value="Snacks">Snacks</option>
+          <option value="Desserts">Desserts</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Meal Image</label>
+        <input type="file" id="mealImage" accept="image/*">
+        <div id="mealImagePreview" style="display:none; margin-top:10px;">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('mealModal')">Cancel</button>
+        <button type="submit" class="btn btn-success" id="submitMealBtn">Save Meal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="confirmDeleteModal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2 style="margin-bottom: 20px;">Delete Meal</h2>
+    <p>Are you sure you want to delete this meal?</p>
+    
+    <div style="margin-top: 20px; display: flex; gap: 10px;">
+      <button class="btn btn-secondary" onclick="closeModal('confirmDeleteModal')">Cancel</button>
+      <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Support Modal -->
+  <div id="supportModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Customer Support</h3>
+        <button class="btn-close" onclick="closeModal('supportModal')">×</button>
+      </div>
+      <form id="supportForm">
+        <div class="input-group">
+          <label for="supportName">Full Name</label>
+          <input type="text" id="supportName" required>
+        </div>
+        <div class="input-group">
+          <label for="supportEmail">Email</label>
+          <input type="email" id="supportEmail" required>
+        </div>
+        <div class="input-group">
+          <label for="supportMessage">Message</label>
+          <textarea id="supportMessage" rows="4" placeholder="How can we help you?" required></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('supportModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send to WhatsApp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Export Orders Modal -->
+  <div id="exportModal" class="modal-overlay hidden">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3>📊 Export Orders Report</h3>
+        <button class="btn-close" onclick="closeExportModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="export-options">
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="exportStartDate">📅 From Date</label>
+              <input type="date" id="exportStartDate" onchange="updateExportPreview()">
+            </div>
+            <div class="input-group">
+              <label for="exportEndDate">📅 To Date</label>
+              <input type="date" id="exportEndDate" onchange="updateExportPreview()">
+            </div>
+          </div>
+          
+          <div class="quick-filters">
+            <label>Quick Date Ranges:</label>
+            <div class="filter-buttons">
+              <button class="btn btn-outline btn-sm" onclick="setExportDateRange('today')">Today</button>
+              <button class="btn btn-outline btn-sm" onclick="setExportDateRange('week')">This Week</button>
+              <button class="btn btn-outline btn-sm" onclick="setExportDateRange('month')">This Month</button>
+              <button class="btn btn-outline btn-sm" onclick="setExportDateRange('all')">All Time</button>
+            </div>
+          </div>
+          
+          <div class="export-preview">
+            <h4>📈 Export Preview</h4>
+            <div id="exportStats" class="export-stats">
+              <div class="loading">Loading statistics...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="generateProfessionalExport()">
+          📥 Download Excel Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+  <!-- Custom Confirmation Modal -->
+<div id="customConfirmModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Start Free Trial</h3>
+      <button class="btn-close" onclick="hideCustomConfirm()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirmation-content">
+        <div class="confirmation-icon">🎁</div>
+        <h4>Start Your 3-Day Free Trial</h4>
+        <p>You're starting a 3-day free trial. After the trial, your card will be automatically charged <strong>₦30,000/month</strong>.</p>
+        <div class="trial-features">
+          <div class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span>Full access to all features</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span>QR code menu generation</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span>Order management system</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span>Cancel anytime</span>
+          </div>
+        </div>
+        <div class="auto-debit-notice">
+          <div class="notice-icon">🔄</div>
+          <div class="notice-content">
+            <strong>Auto-debit enabled</strong>
+            <p>Your card will be automatically charged ₦30,000 every month. You can cancel anytime.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideCustomConfirm()">Cancel</button>
+      <button class="btn btn-primary" id="confirmTrialBtn">Start Free Trial</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+  <script src="script.js" defer></script>
+<!-- Notifications Container -->
+<div id="notificationsContainer" class="notifications-container"></div>
+
+<!-- Custom Card Input Modal -->
+<div id="cardInputModal" class="modal-overlay hidden">
+  <div class="modal card-input-modal">
+    <div class="modal-header">
+      <h3>Enter Card Details</h3>
+      <button class="btn-close" onclick="closeCardInputModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="cardInputForm">
+        <div class="input-group">
+          <label for="customCardNumber">Card Number</label>
+          <input type="text" id="customCardNumber" placeholder="1234 5678 9012 3456" required>
+        </div>
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="customExpiryDate">Expiry Date</label>
+            <input type="text" id="customExpiryDate" placeholder="MM/YY" required>
+          </div>
+          <div class="input-group">
+            <label for="customCVV">CVV</label>
+            <input type="text" id="customCVV" placeholder="123" required>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="customCardName">Name on Card</label>
+          <input type="text" id="customCardName" placeholder="John Doe" required>
+        </div>
+        
+        <div class="card-preview">
+          <div class="card-front">
+            <div class="card-chip"></div>
+            <div class="card-number-preview">•••• •••• •••• ••••</div>
+            <div class="card-details">
+              <div class="card-name-preview">FULL NAME</div>
+              <div class="card-expiry-preview">MM/YY</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeCardInputModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Card</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Emergency Debug Console -->
+<div id="debugConsole" style="
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.9);
+    color: #0f0;
+    padding: 15px;
+    z-index: 10000;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    max-width: 500px;
+    max-height: 300px;
+    overflow: auto;
+    border: 2px solid #0f0;
+    border-radius: 5px;
+    display: none; /* Change to 'block' when needed */
+">
+    <div style="color: yellow; margin-bottom: 10px;">
+        <strong>DEBUG CONSOLE</strong>
+        <button onclick="document.getElementById('debugConsole').style.display='none'" style="float: right; background: red; color: white; border: none; padding: 2px 5px;">X</button>
+    </div>
+    <div id="debugContent"></div>
+</div>
+
+<!-- GLOBAL CONFIRMATION MODAL -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal">
+      <p id="confirmMessage">Are you sure?</p>
+
+      <div class="modal-actions">
+          <button id="confirmYes" class="btn btn-danger">Yes</button>
+          <button id="confirmNo" class="btn btn-secondary">No</button>
+      </div>
+  </div>
+</div>
+
+</body>
+</html>
